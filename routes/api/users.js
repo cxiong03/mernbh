@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const isEmpty = require('../../utils/isEmpty');
+const config = require('../../config');
 
 const User = require('../../models/User');
 
@@ -59,7 +60,7 @@ router.put(
         check('email', 'Valid Email Required').isEmail(),
         check('password', 'Password is required').not().isEmpty(),
     ], 
-    (req, res) => {
+    async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.stauts(400).json({ errors: errors.array ()
@@ -80,6 +81,18 @@ router.put(
             }
 
             // Validated! Challenge create the token and return it to the user.
+
+            User.findOneByIdAndUpdate(user.id, { lastlogin: Date.now() });
+
+            const payload = {
+                id: user.id,
+                email: user.email,
+                //iat: Date
+            };
+
+            const token = jwt.sign(payload, config.secretOrKey, {});
+
+            return res.json(token)
             
         } catch (error) {
             console.error(error);
