@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const isEmpty = require('../../utils/isEmpty');
@@ -82,23 +83,23 @@ router.put(
 
             // Validated! Challenge create the token and return it to the user.
 
-            User.findOneByIdAndUpdate(user.id, { lastlogin: Date.now() });
+            User.findByIdAndUpdate(user.id, { lastLogin: Date.now() });
 
             const payload = {
                 id: user.id,
-                email: user.email,
+                email: user.email
                 //iat: Date
             };
 
             const token = jwt.sign(payload, config.secretOrKey, {});
 
-            return res.json(token)
+            return res.json(token);
             
         } catch (error) {
             console.error(error);
-            res.status(500).json(error)
+            res.status(500).json(error);
         }
     }
-    );
+);
 
 module.exports = router;
