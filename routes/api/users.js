@@ -26,7 +26,7 @@ router.post(
         }
 
         const { email, password } = req.body;
-        const userData = {email, password };
+        const userData = {email: email.toLowerCase(), password };
         // const userData = {
         //     email: req.body.email,
         //     password: req.body.password
@@ -65,17 +65,17 @@ router.put(
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.stauts(400).json({ errors: errors.array ()
-            })
+            });
         }
 
         try {
-            const user = await User.findOne({ email: req.body.email })
+            const user = await User.findOne({ email: req.body.email.toLowerCase() });
 
             if (isEmpty(user)) {
-                return req.status(404).json({ email: 'Email is not found' });
+                return req.status(404).json({ email: 'Email not found' });
             }
 
-            const isMatch = await bcrypt.compare(req.body.password, user.password)
+            const isMatch = await bcrypt.compare(req.body.password, user.password);
 
             if (!isMatch) {
                 return req.status(401).json({ password: 'Incorrect password'});

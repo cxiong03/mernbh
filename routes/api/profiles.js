@@ -16,10 +16,13 @@ router.get("/", auth, (req, res) => {
 //@access Private
 router.post(
   '/',
+  auth,
   [
     check('firstName', 'first name is required').not().isEmpty(),
     check('lastName', 'Last name is required').not().isEmpty(),
     check('educationLevel', 'Education level is required').not().isEmpty(),
+    check('githuburl', 'Invalid URL').optional().isURL(),
+    check('twitterUrl', 'Invalid URL').optional().isURL()
   ],
   async (req, res) => {
     console.log(req.body);
@@ -35,17 +38,20 @@ router.post(
         educationLevel,
         certifications,
         location,
-        social,
+        githubUrl,
+        twitterUrl,
+        youtubeUrl,
         summary,
       } = req.body;
 
       const userId = req.user.id;
 
       const profileFields = {
-        firstName,
-        lastName,
-        name: `${firstName}` 
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        educationLevel, 
       };
+      profileFields.name = `${profileFields.firstName} ${profileFields.lastName}`;
       profileFields.user = userId;
       if (occupation) profileFields.occupation = occupation;
       if (certifications) profileFields.certifications = certifications;
@@ -53,12 +59,11 @@ router.post(
       if (summary) profileFields.summary = summary;
 
       profileFields.scoial = {};
-      if (social.githubUrl) profileFields.social.githubUrl = githubUrl;
-      if (social.twitterUrl) profileFields.social.twitterUrl = twitterUrl;
-      if (social.youtubeUrl) profileFields.social.youtubeUrl = youtubeUrl;
+      if (githubUrl) profileFields.social.githubUrl = githubUrl;
+      if (twitterUrl) profileFields.social.twitterUrl = twitterUrl;
+      if (youtubeUrl) profileFields.social.youtubeUrl = youtubeUrl;
 
       const profile = await Profile.create(profileFields);
-      await profile.save();
       res.json(profile);
     } catch (err) {
       console.error(err.message);
@@ -69,7 +74,5 @@ router.post(
 
 // get /self return logged in users profile data. authenticated route
 // get /return all profiles - hacker challenge one -> exclude logged 
-// in user from results. Hint: query hacker challenge 2 -> excluded location data
-// Hint: Projections
 
 module.exports = router;
