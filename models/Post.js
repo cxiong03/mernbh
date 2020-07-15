@@ -8,6 +8,7 @@ const commentSchema = new Schema({
     },
     text: String,
     // TODO likes maybe dislikes too
+    likes: { type: [Schema.Types.ObjectId], default: []},
 }, {timestamps: {}})
 
 const postSchema = new Schema({
@@ -15,7 +16,7 @@ const postSchema = new Schema({
         type: Schema.Types.ObjecId,
         ref: 'profiles'
     },
-    author: String,
+    author: {type: String, required: true},
     skillLevel: {
         type: String,
         enum: [
@@ -27,12 +28,13 @@ const postSchema = new Schema({
             'Senior',
             'Lead',
         ],
+        required: true
     },
     cohort: String,
-    title: String,
+    title: {type: String, required: true},
     categories: {type: [String], default: []},
     summary: String,
-    link: String,
+    link: {type: String, required: true},
     resourceType: {
         type: 'String',
         enum: [
@@ -47,14 +49,21 @@ const postSchema = new Schema({
             'Newsletter',
             'Blog',
             'Other'
-        ]
+        ],
+        required: true,
     },
     publishedAt: Date,
     videoLength: Number,
     timeToComplete: Number,
+    cost: {type: Number, required: true},
     comments: {type: [commentSchema], default: []},
-    cost: Number
     // TODO rating
+    // only users and rate once. need id and score, [objects is and the score]
+    rating:
+        {
+            type: [{user: mongoose.Schema.Types.ObjectId, score: Number}],
+            default: []
+        }
 });
 
 module.exports = Post = mongoose.model('posts', postSchema);
