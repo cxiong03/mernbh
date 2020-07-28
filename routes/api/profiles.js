@@ -1,28 +1,46 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const auth = require('../../middleware/auth');
+const auth = require("../../middleware/auth");
 
-const { check, validationResult } = require('express-validator');
+const { check, validationResult } = require("express-validator");
 
-const Profile = require('../../models/Profile');
+const Profile = require("../../models/Profile");
 
-router.get("/", auth, (req, res) => {
-    console.log(req.user);
-    res.send("Profile Route")
+// @route     GET '/api/profiles'
+// @desc      New Profile.
+// @access    Private -> Registered users.
+router.get("/:id", auth, async (req, res) => {
+  try {
+    const profile = await Profile.findById(req.params.id);
+    res.json(profile);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server Error." });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const profiles = await Profile.find().sort("username");
+    res.json(profiles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server Error." });
+  }
 });
 
 //@route  POST api/profile
 //@desc   Create or update user profile
 //@access Private
 router.post(
-  '/',
+  "/",
   auth,
   [
-    check('firstName', 'first name is required').not().isEmpty(),
-    check('lastName', 'Last name is required').not().isEmpty(),
-    check('educationLevel', 'Education level is required').not().isEmpty(),
-    check('githuburl', 'Invalid URL').optional().isURL(),
-    check('twitterUrl', 'Invalid URL').optional().isURL()
+    check("firstName", "first name is required").not().isEmpty(),
+    check("lastName", "Last name is required").not().isEmpty(),
+    check("educationLevel", "Education level is required").not().isEmpty(),
+    check("githuburl", "Invalid URL").optional().isURL(),
+    check("twitterUrl", "Invalid URL").optional().isURL(),
   ],
   async (req, res) => {
     console.log(req.body);
@@ -49,7 +67,7 @@ router.post(
       const profileFields = {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        educationLevel, 
+        educationLevel,
       };
       profileFields.name = `${profileFields.firstName} ${profileFields.lastName}`;
       profileFields.user = userId;
@@ -67,12 +85,23 @@ router.post(
       res.json(profile);
     } catch (err) {
       console.error(err.message);
-      res.status(500).send('Server Error');
+      res.status(500).send("Server Error");
     }
   }
 );
 
+router.delete("/", auth, async (req, res) => {
+  try {
+    await Profile.findOneAndRemove({ user: req.user.id });
+
+    res.json({ msg: "Profile has been deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server Error" });
+  }
+});
+
 // get /self return logged in users profile data. authenticated route
-// get /return all profiles - hacker challenge one -> exclude logged 
+// get /return all profiles - hacker challenge one -> exclude logged
 
 module.exports = router;
