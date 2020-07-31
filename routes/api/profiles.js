@@ -5,6 +5,7 @@ const auth = require("../../middleware/auth");
 const { check, validationResult } = require("express-validator");
 
 const Profile = require("../../models/Profile");
+const { request } = require("express");
 
 // @route     GET '/api/profiles'
 // @desc      New Profile.
@@ -86,6 +87,41 @@ router.post(
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server Error");
+    }
+  }
+);
+
+router.put(
+  "/",
+  auth,
+  [
+    check("firstName", "first name is required").not().isEmpty(),
+    check("lastName", "Last name is required").not().isEmpty(),
+    check("educationLevel", "Education level is required").not().isEmpty(),
+    check("githuburl", "Invalid URL").optional().isURL(),
+    check("twitterUrl", "Invalid URL").optional().isURL(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const profile = await Profile.findOne({ user: req.user.id });
+      if (!profile) {
+        res.status(403).json({ msg: "No profile" });
+      }
+      const profileData = { ...req.body };
+
+      const updatedProfile = await Profile.findOneAndUpdate(
+        { _id: profile._id },
+        { $set: profileData },
+        { new: true }
+      );
+      res.json(updatedProfile);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json(error);
     }
   }
 );
