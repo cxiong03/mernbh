@@ -7,22 +7,25 @@ const { check, validationResult } = require("express-validator");
 const Profile = require("../../models/Profile");
 const { request } = require("express");
 
-// @route     GET '/api/profiles'
-// @desc      New Profile.
+// @route     GET '/api/profiles/id'
+// @desc      get a profile by id
 // @access    Private -> Registered users.
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const profile = await Profile.findById(req.params.id);
+    if (!profile) {
+      return res.status(404).json({ msg: "Profile Not Found" });
+    }
     res.json(profile);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Server Error." });
+    res.status(500).json({ msg: "Server Error.", error });
   }
 });
 
 router.get("/", async (req, res) => {
   try {
-    const profiles = await Profile.find().sort("username");
+    const profiles = await Profile.find().sort({ username: 1 });
     res.json(profiles);
   } catch (error) {
     console.error(error);
@@ -109,13 +112,13 @@ router.put(
     try {
       const profile = await Profile.findOne({ user: req.user.id });
       if (!profile) {
-        res.status(403).json({ msg: "No profile" });
+        res.status(404).json({ msg: "No profile" });
       }
       const profileData = { ...req.body };
 
-      const updatedProfile = await Profile.findOneAndUpdate(
-        { _id: profile._id },
-        { $set: profileData },
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        profile._id,
+        profileData,
         { new: true }
       );
       res.json(updatedProfile);
