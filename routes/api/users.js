@@ -90,7 +90,7 @@ router.put(
 
       const payload = {
         id: user.id,
-        // email: user.email
+        // email: user.email,
         //iat: Date
       };
 

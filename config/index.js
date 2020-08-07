@@ -1,5 +1,5 @@
 module.exports = {
-    mongoURI: "mongodb+srv://master_hbnrem:atlas123@mernbh-hvjei.mongodb.net/brainhive?retryWrites=true&w=majority",
-    secretOrKey: "secretToken"
-
+  mongoURI:
+    "mongodb+srv://Chang:abcd1234@cluster0.bbf1q.mongodb.net/BrainHive?retryWrites=true&w=majority",
+  secretOrKey: "secretToken",
 };

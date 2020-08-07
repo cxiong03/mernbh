@@ -7,6 +7,23 @@ const { check, validationResult } = require("express-validator");
 const Profile = require("../../models/Profile");
 const { request } = require("express");
 
+// @route     GET '/api/profiles/self'
+// @desc      get self profile
+// @access    Private -> Registered users.
+router.get("/self", auth, async (req, res) => {
+  try {
+    const profile = await Profile.findOne({ user: req.user.id });
+    console.log(req);
+    if (!profile) {
+      return res.status(404).json({ msg: "Profile Not Found" });
+    }
+    res.json(profile);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server Error.", error });
+  }
+});
+
 // @route     GET '/api/profiles/id'
 // @desc      get a profile by id
 // @access    Private -> Registered users.
