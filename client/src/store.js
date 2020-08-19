@@ -7,6 +7,12 @@ const INITIAL_STATE = {}
 
 const middleware = [thunk]
 
-const composer = 
+const composer = process.env.NODE_ENV === "development" ? composeWithDevTools : compose:
 
-export default
+const store = createStore(
+    reducers,
+    INITIAL_STATE,
+    composer(applyMiddleware(...middleware))
+);
+
+export default store;
