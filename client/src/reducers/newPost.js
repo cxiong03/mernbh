@@ -1,38 +1,47 @@
-import store from "../store";
-
-const INITIAL_STATE = {
-  query: {
-    author: "",
-    skillLevel: "",
+const INITIAL_STORE = {
+  form: {
+    resourceAuthor: "",
+    authorSkillLevel: "",
     cohort: "",
     title: "",
     categories: "",
     summary: "",
     link: "",
-    resourceType: [],
-    publishedAt: 0,
-    videoLength: 0,
-    timeToComplete: 0,
-    cost: 0,
+    resourceType: "",
+    datePublished: "",
+    videoLength: "",
+    timeToComplete: "",
   },
   loading: false,
   errors: {},
 };
-
-export default (state = INITIAL_STATE, action) => {
+export default (store = INITIAL_STORE, action) => {
   switch (action.type) {
-    case "UPDATE_QUERY_FIELD":
+    case UPDATE_FORM:
       return {
         ...store,
-        query: {
-          ...store.query,
+        form: {
+          ...store.form,
+          [action.payload.field]: action.payload.value,
         },
       };
-    case "SUBMIT_POST":
+    case SUMBIT_FORM:
       return {
-        ...state,
-        errors: {},
+        ...store,
         loading: true,
+        errors: {},
       };
+    case FAILURE_FORM:
+      return {
+        ...store,
+        loading: false,
+        errors: action.payload,
+      };
+    case SUCCESS_FORM:
+      return {
+        ...INITIAL_STORE,
+      };
+    default:
+      return store;
   }
 };
